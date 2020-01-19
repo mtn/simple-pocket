@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>reading list</title>
+    <script>
+      function postRequest(endpoint, articleID) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", endpoint, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+          if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            // All callbacks are just to remove the element
+            let elem = document.getElementById("article_li_" + articleID);
+            elem.parentNode.removeChild(elem);
+          }
+        }
+        console.log("HI");
+        xhr.send("articleID=" + articleID);
+      }
+      function markRead(articleID) {
+        postRequest("/markread", articleID);
+      }
+      function deleteEntry(articleID) {
+        postRequest("/delete", articleID);
+      }
+      function unarchiveEntry(articleID) {
+        postRequest("/readd", articleID);
+      }
+    </script>
+  </head>
+  <body>
+    {% if articles %}
+    <a href="/read">archives</a>
+    <ul>
+      {% for article in articles %}
+      <li id="article_li_{{articles[article][0]}}">
+        {{ article }}
+        <a href="{{ articles[article][1] }}" id="article_direct_link_{{ articles[article][0] }}">link</a>
+        <a href="#"
+           onclick="markRead('{{articles[article][0]}}');"
+           id="article_mark_read_{{ articles[article][0] }}">read</a>
+        <a href="#"
+           onclick="deleteEntry('{{articles[article][0]}}');"
+           id="article_delete_entry_{{articles[article][0]}}">delete</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif archives %}
+    <a href="/">active</a>
+    <ul>
+      {% for article in archives%}
+      <li id="article_li_{{archives[article][0]}}">
+        {{ article }}
+        <a href="{{ archives[article][1] }}" id="article_direct_link_{{ archives[article][0] }}">link</a>
+        <a href="#"
+           onclick="unarchiveEntry('{{archives[article][0]}}');"
+           id="article_mark_read_{{ archives[article][0] }}">unarchive</a>
+        <a href="#article_li{{archives[article][0]}}"
+           onclick="deleteEntry('{{archives[article][0]}}');"
+           id="article_delete_entry_{{archives[article][0]}}">delete</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </body>
+</html>
